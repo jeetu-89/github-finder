@@ -1,36 +1,23 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaGithubAlt } from "react-icons/fa";
+import { fetchGithubUser } from "../api/github";
 
 const UserSearch = () => {
   const [userName, setUserName] = useState("");
-    const [submittedUserName, setSubmittedUserName] = useState("");
-  
-    const { data, isLoading, isError, error } = useQuery({
-      queryKey: ["users", submittedUserName],
-      queryFn: async () => {
-        const res = await fetch(
-          `${import.meta.env.VITE_GITHUB_API_URL}/users/${submittedUserName}`,
-          {
-            headers: {
-              Authorization: `token ${import.meta.env.VITE_GITHUB_TOKEN}`,
-            },
-          }
-        );
-        if (!res.ok) throw new Error("Unable to find the searched User!");
-  
-        const data = await res.json();
-        console.log(data);
-        return data;
-      },
-      enabled: !!submittedUserName,
-    });
-  
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const trimmedUserName = userName.trim();
-      setSubmittedUserName(trimmedUserName);
-    };
+  const [submittedUserName, setSubmittedUserName] = useState("");
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["users", submittedUserName],
+    queryFn: () => fetchGithubUser(submittedUserName),
+    enabled: !!submittedUserName,
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmedUserName = userName.trim();
+    setSubmittedUserName(trimmedUserName);
+  };
 
   return (
     <>
@@ -66,5 +53,6 @@ const UserSearch = () => {
     </>
   );
 };
+
 
 export default UserSearch;
