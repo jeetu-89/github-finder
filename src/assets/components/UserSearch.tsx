@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaGithubAlt } from "react-icons/fa";
 import { fetchGithubUser } from "../api/github";
+import RecentSearches from "./RecentSearches";
 
 const UserSearch = () => {
   const [userName, setUserName] = useState("");
   const [submittedUserName, setSubmittedUserName] = useState("");
+  const [recentUsers, setRecentUsers] = useState<string[]>([]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users", submittedUserName],
@@ -16,6 +18,14 @@ const UserSearch = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedUserName = userName.trim();
+    if (!trimmedUserName) return;
+    setRecentUsers((prev) => {
+      const updatedUsers = [
+        trimmedUserName,
+        ...prev.filter((user) => user != trimmedUserName),
+      ];
+      return updatedUsers.slice(0, 5);
+    });
     setSubmittedUserName(trimmedUserName);
   };
 
@@ -50,9 +60,18 @@ const UserSearch = () => {
           </a>
         </div>
       )}
+
+      {recentUsers.length > 0 && (
+        <RecentSearches
+          users={recentUsers}
+          onSelect={(user: string) => {
+            setUserName(user);
+            setSubmittedUserName(user);
+          }}
+        />
+      )}
     </>
   );
 };
-
 
 export default UserSearch;
