@@ -58,16 +58,25 @@ const UserSearch = () => {
           {showSuggestions && suggestions?.length > 0 && (
             <ul className="suggestions">
               {suggestions.slice(0, 5).map((user: GithubUser) => (
-                <li key={user.login} onClick={()=>{
-                  setUserName(user.login);
-                  setShowSuggestions(false);
-                  if(submittedUserName!== user.login){
-                    setSubmittedUserName(user.login);
-                  }
-                  else{
-                    refetch();
-                  }
-                }}>
+                <li
+                  key={user.login}
+                  onClick={() => {
+                    setUserName(user.login);
+                    setShowSuggestions(false);
+                    if (submittedUserName !== user.login) {
+                      setSubmittedUserName(user.login);
+                    } else {
+                      refetch();
+                    }
+                    setRecentUsers((prev) => {
+                      const updatedUsers = [
+                        user.login,
+                        ...prev.filter((username) => username !== user.login),
+                      ];
+                      return updatedUsers.slice(0, 5);
+                    });
+                  }}
+                >
                   <img
                     src={user.avatar_url}
                     alt={user.login}
