@@ -1,7 +1,11 @@
 import type { GithubUser } from "../types";
-const SuggestionDropdown = ({ users, onSelect }:{
-    users: GithubUser[],
-    onSelect: (user: GithubUser)=>void
+
+const SuggestionDropdown = ({
+  users,
+  onSelect,
+}: {
+  users: GithubUser[];
+  onSelect: (user: GithubUser) => void;
 }) => {
   return (
     <ul className="suggestions">

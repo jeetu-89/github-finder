@@ -5,12 +5,13 @@ import { fetchGithubUser, searchGithubUsers } from "../api/github";
 import RecentSearches from "./RecentSearches";
 import { useDebounce } from "use-debounce";
 import type { GithubUser } from "../types";
+import SuggestionDropdown from "./SuggestionDropdown";
 
 const UserSearch = () => {
   //states
   const [userName, setUserName] = useState("");
   const [submittedUserName, setSubmittedUserName] = useState("");
-  const [recentUsers, setRecentUsers] = useState<string[]>(()=>{
+  const [recentUsers, setRecentUsers] = useState<string[]>(() => {
     const val = localStorage.getItem("recentUsers");
     return val ? JSON.parse(val) : [];
   });
@@ -45,9 +46,9 @@ const UserSearch = () => {
   };
 
   //SideEffects
-  useEffect(()=>{
-    localStorage.setItem("recentUsers", JSON.stringify(recentUsers))
-  },[recentUsers])
+  useEffect(() => {
+    localStorage.setItem("recentUsers", JSON.stringify(recentUsers));
+  }, [recentUsers]);
 
   return (
     <>
@@ -64,36 +65,25 @@ const UserSearch = () => {
             }}
           />
           {showSuggestions && suggestions?.length > 0 && (
-            <ul className="suggestions">
-              {suggestions.slice(0, 5).map((user: GithubUser) => (
-                <li
-                  key={user.login}
-                  onClick={() => {
-                    setUserName(user.login);
-                    setShowSuggestions(false);
-                    if (submittedUserName !== user.login) {
-                      setSubmittedUserName(user.login);
-                    } else {
-                      refetch();
-                    }
-                    setRecentUsers((prev) => {
-                      const updatedUsers = [
-                        user.login,
-                        ...prev.filter((username) => username !== user.login),
-                      ];
-                      return updatedUsers.slice(0, 5);
-                    });
-                  }}
-                >
-                  <img
-                    src={user.avatar_url}
-                    alt={user.login}
-                    className="avatar-xs"
-                  />
-                  {user.login}
-                </li>
-              ))}
-            </ul>
+            <SuggestionDropdown
+              users={suggestions}
+              onSelect={(user) => {
+                setUserName(user.login);
+                setShowSuggestions(false);
+                if (submittedUserName !== user.login) {
+                  setSubmittedUserName(user.login);
+                } else {
+                  refetch();
+                }
+                setRecentUsers((prev) => {
+                  const updatedUsers = [
+                    user.login,
+                    ...prev.filter((username) => username !== user.login),
+                  ];
+                  return updatedUsers.slice(0, 5);
+                });
+              }}
+            />
           )}
         </div>
         <button type="submit">Search </button>
