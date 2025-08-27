@@ -1,18 +1,30 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaGithubAlt } from "react-icons/fa";
-import { fetchGithubUser } from "../api/github";
+import { fetchGithubUser, searchGithubUsers } from "../api/github";
 import RecentSearches from "./RecentSearches";
+import { useDebounce } from "use-debounce";
+import type { GithubUser } from "../types";
 
 const UserSearch = () => {
+  //states
   const [userName, setUserName] = useState("");
   const [submittedUserName, setSubmittedUserName] = useState("");
   const [recentUsers, setRecentUsers] = useState<string[]>([]);
+  const [debouncedUser] = useDebounce(userName, 300);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
+  //Queries
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["users", submittedUserName],
     queryFn: () => fetchGithubUser(submittedUserName),
     enabled: !!submittedUserName,
+  });
+
+  const { data: suggestions, refetch } = useQuery({
+    queryKey: ["github-user-suggestions", debouncedUser],
+    queryFn: () => searchGithubUsers(debouncedUser),
+    enabled: debouncedUser.length > 1,
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,12 +44,41 @@ const UserSearch = () => {
   return (
     <>
       <form onSubmit={handleSubmit} className="form">
-        <input
-          type="text"
-          placeholder="Enter Github Username..."
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
+        <div className="dropdown-wrapper">
+          <input
+            type="text"
+            placeholder="Enter Github Username..."
+            value={userName}
+            onChange={(e) => {
+              const val = e.target.value;
+              setUserName(val);
+              setShowSuggestions(val.trim().length > 1);
+            }}
+          />
+          {showSuggestions && suggestions?.length > 0 && (
+            <ul className="suggestions">
+              {suggestions.slice(0, 5).map((user: GithubUser) => (
+                <li key={user.login} onClick={()=>{
+                  setUserName(user.login);
+                  setShowSuggestions(false);
+                  if(submittedUserName!== user.login){
+                    setSubmittedUserName(user.login);
+                  }
+                  else{
+                    refetch();
+                  }
+                }}>
+                  <img
+                    src={user.avatar_url}
+                    alt={user.login}
+                    className="avatar-xs"
+                  />
+                  {user.login}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <button type="submit">Search </button>
       </form>
 

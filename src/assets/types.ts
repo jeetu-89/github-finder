@@ -4,4 +4,5 @@ export type GithubUser = {
   profile: string;
   bio: string;
   html_url: string;
+  login: string;
 };
