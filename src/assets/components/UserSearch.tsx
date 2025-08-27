@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaGithubAlt } from "react-icons/fa";
 import { fetchGithubUser, searchGithubUsers } from "../api/github";
@@ -10,7 +10,10 @@ const UserSearch = () => {
   //states
   const [userName, setUserName] = useState("");
   const [submittedUserName, setSubmittedUserName] = useState("");
-  const [recentUsers, setRecentUsers] = useState<string[]>([]);
+  const [recentUsers, setRecentUsers] = useState<string[]>(()=>{
+    const val = localStorage.getItem("recentUsers");
+    return val ? JSON.parse(val) : [];
+  });
   const [debouncedUser] = useDebounce(userName, 300);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -40,6 +43,11 @@ const UserSearch = () => {
     });
     setSubmittedUserName(trimmedUserName);
   };
+
+  //SideEffects
+  useEffect(()=>{
+    localStorage.setItem("recentUsers", JSON.stringify(recentUsers))
+  },[recentUsers])
 
   return (
     <>
