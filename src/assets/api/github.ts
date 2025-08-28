@@ -1,11 +1,6 @@
 export const fetchGithubUser = async (submittedUserName: string) => {
   const res = await fetch(
-    `${import.meta.env.VITE_GITHUB_API_URL}/users/${submittedUserName}`,
-    {
-      headers: {
-        Authorization: `token ${import.meta.env.VITE_GITHUB_TOKEN}`,
-      },
-    }
+    `${import.meta.env.VITE_GITHUB_API_URL}/users/${submittedUserName}`
   );
   if (!res.ok) throw new Error("Unable to find the searched User!");
 
