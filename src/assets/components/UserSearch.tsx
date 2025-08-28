@@ -4,7 +4,7 @@ import { FaGithubAlt } from "react-icons/fa";
 import { fetchGithubUser, searchGithubUsers } from "../api/github";
 import RecentSearches from "./RecentSearches";
 import { useDebounce } from "use-debounce";
-import type { GithubUser } from "../types";
+// import type { GithubUser } from "../types";
 import SuggestionDropdown from "./SuggestionDropdown";
 
 const UserSearch = () => {
@@ -64,27 +64,27 @@ const UserSearch = () => {
               setShowSuggestions(val.trim().length > 1);
             }}
           />
-          {showSuggestions && suggestions?.length > 0 && (
-            <SuggestionDropdown
-              users={suggestions}
-              onSelect={(user) => {
-                setUserName(user.login);
-                setShowSuggestions(false);
-                if (submittedUserName !== user.login) {
-                  setSubmittedUserName(user.login);
-                } else {
-                  refetch();
-                }
-                setRecentUsers((prev) => {
-                  const updatedUsers = [
-                    user.login,
-                    ...prev.filter((username) => username !== user.login),
-                  ];
-                  return updatedUsers.slice(0, 5);
-                });
-              }}
-            />
-          )}
+
+          <SuggestionDropdown
+            users={suggestions}
+            show={showSuggestions}
+            onSelect={(user) => {
+              setUserName(user.login);
+              setShowSuggestions(false);
+              if (submittedUserName !== user.login) {
+                setSubmittedUserName(user.login);
+              } else {
+                refetch();
+              }
+              setRecentUsers((prev) => {
+                const updatedUsers = [
+                  user.login,
+                  ...prev.filter((username) => username !== user.login),
+                ];
+                return updatedUsers.slice(0, 5);
+              });
+            }}
+          />
         </div>
         <button type="submit">Search </button>
       </form>
